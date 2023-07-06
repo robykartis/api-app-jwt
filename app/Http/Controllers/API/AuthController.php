@@ -21,17 +21,24 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:3',
+            'password' => [
+                'required',
+                'min:3',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/',
+            ],
             'password_confirmation' => 'required|same:password',
         ], [
-            'name.required' => 'Kolom nama tidak boleh kosong...!',
-            'email.required' => 'Kolom email tidak boleh kosong...!',
-            'email.unique' => 'Email yang anda masukan sudah terdaftar...!',
-            'password.required' => 'Kolom password tidak boleh kosong...!',
-            'password.min' => 'Password yang dimasukan minimal 3 karakter huruf dan angka...!',
-            'password_confirmation.required' => 'Kolom konfirmasi password tidak boleh kosong...!',
-            'password_confirmation.same' => 'Konfirmasi password yang anda masukan tidak sama ualngi kembali...!',
+            'name.required' => 'Kolom nama tidak boleh kosong.',
+            'email.required' => 'Kolom email tidak boleh kosong.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email yang Anda masukkan sudah terdaftar.',
+            'password.required' => 'Kolom password tidak boleh kosong.',
+            'password.min' => 'Password yang Anda masukkan minimal 3 karakter huruf dan angka.',
+            'password.regex' => 'Password harus mengandung setidaknya satu huruf besar, satu huruf kecil, satu angka, dan satu simbol.',
+            'password_confirmation.required' => 'Kolom konfirmasi password tidak boleh kosong.',
+            'password_confirmation.same' => 'Konfirmasi password yang Anda masukkan tidak sama. Silakan ulangi kembali.',
         ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'status_kode' => 201,
@@ -39,6 +46,7 @@ class AuthController extends Controller
                 'message' => $validator->errors()->first()
             ], 200);
         }
+
         try {
             $user = new User();
             $user->name = $request->name;
@@ -58,21 +66,45 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required|min:3',
+            'email' => [
+                'required',
+                'email',
+                function ($attribute, $value, $fail) {
+                    $user = User::where('email', $value)->first();
+
+                    if (!$user) {
+                        $fail('Email yang Anda masukkan belum terdaftar.');
+                    }
+                },
+            ],
+            'password' => [
+                'required',
+                'min:3',
+                function ($attribute, $value, $fail) use ($request) {
+                    $user = User::where('email', $request->email)->first();
+
+                    if ($user && !Hash::check($value, $user->password)) {
+                        $fail('Password yang Anda masukkan salah.');
+                    }
+                },
+            ],
         ], [
-            'email.required' => 'Kolom email tidak boleh kosong...!',
-            'password.required' => 'Kolom password tidak boleh kosong...!',
-            'password.min' => 'Password yang dimasukan minimal 3 karakter huruf dan angka...!',
+            'email.required' => 'Kolom email tidak boleh kosong.',
+            'email.email' => 'Format email tidak valid.',
+            'password.required' => 'Kolom password tidak boleh kosong.',
+            'password.min' => 'Password yang anda masukan minimal 3 karakter.',
         ]);
+
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()->first()
-            ], 200);
+            return response()->json($validator->errors(), 422);
+        }
+
+        if (!$token = auth()->attempt($validator->validated())) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
         try {
             $credentials = $request->only('email', 'password');
@@ -99,46 +131,6 @@ class AuthController extends Controller
                 'message' => $e->errorInfo
             ], 500);
         }
-    }
-    public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'email' => [
-                'required',
-                'email',
-                function ($attribute, $value, $fail) {
-                    $user = User::where('email', $value)->first();
-
-                    if (!$user) {
-                        $fail('Email yang Anda masukkan belum terdaftar.');
-                    }
-                },
-            ],
-            'password' => [
-                'required',
-                function ($attribute, $value, $fail) use ($request) {
-                    $user = User::where('email', $request->email)->first();
-
-                    if ($user && !Hash::check($value, $user->password)) {
-                        $fail('Password yang Anda masukkan salah.');
-                    }
-                },
-            ],
-        ], [
-            'email.required' => 'Kolom email tidak boleh kosong.',
-            'email.email' => 'Format email tidak valid.',
-            'password.required' => 'Kolom password tidak boleh kosong.',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
-        if (!$token = auth()->attempt($validator->validated())) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
-        return $this->createNewToken($token);
     }
 
     public function logout()
