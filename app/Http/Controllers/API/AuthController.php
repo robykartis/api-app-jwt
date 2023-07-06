@@ -100,7 +100,6 @@ class AuthController extends Controller
             ], 500);
         }
     }
-<<<<<<< HEAD
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -154,25 +153,6 @@ class AuthController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
             'user' => auth()->user()
-=======
-    public function logout()
-    {
-        Auth::logout();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Successfully logged out',
-        ]);
-    }
-    public function refresh()
-    {
-        return response()->json([
-            'status' => 'success',
-            'user' => Auth::user(),
-            'authorisation' => [
-                'token' => Auth::refresh(),
-                'type' => 'bearer',
-            ]
->>>>>>> 314949991617a91faba269d742c9e09804430f31
         ]);
     }
 }
