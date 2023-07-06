@@ -24,7 +24,7 @@ class AuthController extends Controller
             'password' => [
                 'required',
                 'min:3',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&_])[A-Za-z\d@$!%*#?&_]+$/',
             ],
             'password_confirmation' => 'required|same:password',
         ], [
