@@ -13,11 +13,12 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('jwt_auth', ['except' => ['login', 'register']]);
     }
 
     public function register(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
@@ -51,6 +52,7 @@ class AuthController extends Controller
             $user = new User();
             $user->name = $request->name;
             $user->email = $request->email;
+            $user->role_id = 3;
             $user->password = Hash::make($request->password);
             $user->save();
 

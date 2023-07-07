@@ -11,6 +11,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('logout', 'logout');
     Route::post('refresh', 'refresh');
 });
-Route::prefix('user')->group(function () {
+Route::prefix('user')->middleware('auth:api', 'jwt_auth')->group(function () {
     Route::get('/', [UserController::class, 'index']);
+    Route::post('/store', [UserController::class, 'store']);
 });
