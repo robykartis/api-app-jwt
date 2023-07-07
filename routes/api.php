@@ -10,6 +10,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
     Route::post('logout', 'logout');
     Route::post('refresh', 'refresh');
+    Route::get('profil', 'profil');
 });
 Route::prefix('user')->middleware('auth:api', 'jwt_auth')->group(function () {
     Route::get('/', [UserController::class, 'index']);

@@ -16,6 +16,22 @@ class AuthController extends Controller
         $this->middleware('jwt_auth', ['except' => ['login', 'register']]);
     }
 
+    public function profil()
+    {
+        try {
+            $user = auth()->user()->name;
+            return response()->json([
+                'status' => true,
+                'message' => 'success',
+                'data' => $user
+            ], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->errorInfo
+            ], 500);
+        }
+    }
     public function register(Request $request)
     {
 
@@ -134,11 +150,14 @@ class AuthController extends Controller
             ], 500);
         }
     }
-
     public function logout()
     {
         auth()->logout();
         return response()->json(['message' => 'User successfully signed out']);
+    }
+    public function refresh()
+    {
+        return $this->createNewToken(auth()->refresh());
     }
     protected function createNewToken($token)
     {

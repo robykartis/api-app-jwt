@@ -4,6 +4,7 @@ namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
 
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +17,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        Post::class => PostPolicy::class,
     ];
 
     /**
@@ -24,9 +25,13 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->registerPolicies();
         Gate::define('create-edit-delete-users', function (User $user) {
-            if ($user->role_id === 1) {
+            if ($user->role_id === 1 || $user->role_id === 2) {
+                return true;
+            }
+        });
+        Gate::define('create-edit-delete-show-posts', function (User $user, Post $post) {
+            if ($post->role_id === 3) {
                 return true;
             }
         });
