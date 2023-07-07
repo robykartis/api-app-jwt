@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('cat_posts', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('created_by')->nullable();
+            $table->string('created_by')->nullable();
+            $table->string('update_by')->nullable();
             $table->timestamps();
         });
     }

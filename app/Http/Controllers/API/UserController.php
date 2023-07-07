@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('jwt_auth')->except('');
@@ -49,7 +48,6 @@ class UserController extends Controller
             'password_confirmation.required' => 'Kolom konfirmasi password tidak boleh kosong.',
             'password_confirmation.same' => 'Konfirmasi password yang Anda masukkan tidak sama. Silakan ulangi kembali.',
         ]);
-
         if ($validator->fails()) {
             return response()->json([
                 'status_kode' => 201,
@@ -57,23 +55,38 @@ class UserController extends Controller
                 'message' => $validator->errors()->first()
             ], 200);
         }
-
         try {
             $user = new User();
             $user->name = $request->name;
             $user->email = $request->email;
             $user->role_id = $request->role_id;
+            $user['created_by'] = auth()->user()->name;
             $user->password = Hash::make($request->password);
             $user->save();
-
             return response()->json([
-                'status' => 'success',
+                'status' => true,
                 'message' => 'Akun berhasil ditambahkan',
                 'data' => $user
             ], 200);
         } catch (\Throwable $e) {
             return response()->json([
-                'status' => 'error',
+                'status' => false,
+                'message' => $e->errorInfo
+            ], 500);
+        }
+    }
+    public function show($id)
+    {
+        try {
+            $user = User::find($id);
+            return response()->json([
+                'status' => true,
+                'message' => 'Show akun berhasil',
+                'data' => $user
+            ], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
                 'message' => $e->errorInfo
             ], 500);
         }
@@ -101,7 +114,6 @@ class UserController extends Controller
             'password.regex' => 'Password harus mengandung setidaknya satu huruf besar, satu huruf kecil, satu angka, dan satu simbol.',
             'password_confirmation.same' => 'Konfirmasi password yang Anda masukkan tidak sama. Silakan ulangi kembali.',
         ]);
-
         if ($validator->fails()) {
             return response()->json([
                 'status_kode' => 201,
@@ -109,28 +121,41 @@ class UserController extends Controller
                 'message' => $validator->errors()->first()
             ], 200);
         }
-
         try {
-            $user = User::findOrFail($id);
+            $user = User::find($id);
             $user->name = $request->name;
             $user->email = $request->email;
             $user->role_id = $request->role_id;
-            $user['created_by'] = auth()->user()->id;
-
+            $user['update_by'] = auth()->user()->name;
             if ($request->has('password')) {
                 $user->password = Hash::make($request->password);
             }
-
             $user->save();
-
             return response()->json([
-                'status' => 'success',
+                'status' => true,
                 'message' => 'Akun berhasil diperbarui',
                 'data' => $user
             ], 200);
         } catch (\Throwable $e) {
             return response()->json([
                 'status' => 'error',
+                'message' => $e->errorInfo
+            ], 500);
+        }
+    }
+    public function destroy($id)
+    {
+        try {
+            $user = User::find($id);
+            $user->delete();
+            return response()->json([
+                'status' => true,
+                'message' => 'Akun berhasil dihapus.',
+                'data' => $user
+            ], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
                 'message' => $e->errorInfo
             ], 500);
         }

@@ -17,12 +17,10 @@ Route::controller(AuthController::class)->group(function () {
 Route::prefix('user')->middleware(['auth:api', 'jwt_auth', 'check.role'])->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::post('/store', [UserController::class, 'store']);
+    Route::get('/{id}/show', [UserController::class, 'show']);
+    Route::put('/{id}/update', [UserController::class, 'update']);
+    Route::put('/{id}/destroy', [UserController::class, 'destroy']);
 });
-
-
-
-
-
 
 Route::prefix('post')->middleware(['auth:api', 'jwt_auth', 'aksess.user'])->group(function () {
     Route::get('/', [PostsController::class, 'index']);
