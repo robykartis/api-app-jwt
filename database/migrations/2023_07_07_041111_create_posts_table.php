@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('image_post')->nullable();
             $table->foreignId("role_id")->constrained("users");
             $table->foreignId("cat_post_id")->constrained("cat_posts");
+            $table->integer('created_by')->nullable();
             $table->timestamps();
         });
     }

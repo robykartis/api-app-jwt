@@ -115,6 +115,7 @@ class UserController extends Controller
             $user->name = $request->name;
             $user->email = $request->email;
             $user->role_id = $request->role_id;
+            $user['created_by'] = auth()->user()->id;
 
             if ($request->has('password')) {
                 $user->password = Hash::make($request->password);
