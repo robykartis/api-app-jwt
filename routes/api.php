@@ -18,6 +18,12 @@ Route::prefix('user')->middleware(['auth:api', 'jwt_auth', 'check.role'])->group
     Route::get('/', [UserController::class, 'index']);
     Route::post('/store', [UserController::class, 'store']);
 });
+
+
+
+
+
+
 Route::prefix('post')->middleware(['auth:api', 'jwt_auth', 'aksess.user'])->group(function () {
     Route::get('/', [PostsController::class, 'index']);
 });
