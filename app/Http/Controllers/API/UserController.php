@@ -13,7 +13,7 @@ class UserController extends Controller
 
     public function __construct()
     {
-        $this->middleware('jwt_auth')->except('index');
+        $this->middleware('jwt_auth')->except('');
     }
     public function index()
     {
