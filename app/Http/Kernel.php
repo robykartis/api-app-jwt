@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
 
         'jwt_auth' => \App\Http\Middleware\JwtMiddleware::class,
         'check.role' => \App\Http\Middleware\CheckRoleMiddleware::class,
+        'aksess.user' => \App\Http\Middleware\MiddlewareUserAksess::class,
     ];
 }
